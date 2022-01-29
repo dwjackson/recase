@@ -67,6 +67,11 @@ fn camel_case_parts(s: &str) -> Vec<String> {
     parts
 }
 
+fn kebab_to_camel(s: &str) -> String {
+    let parts = s.split("-").map(|p| p.to_string()).collect::<Vec<String>>();
+    join_camel_case(&parts)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -119,5 +124,12 @@ mod tests {
     #[test]
     fn test_long_camel_to_snake_with_initial_capital() {
         test_camel_to_snake("ThisIsTheTest", "This_is_the_test");
+    }
+
+    #[test]
+    fn test_kebab_to_camel() {
+        let input = "this-is-the-test";
+        let output = kebab_to_camel(input);
+        assert_eq!(output, "thisIsTheTest");
     }
 }
