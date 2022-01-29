@@ -42,7 +42,23 @@ pub fn convert(input: &str, input_type: CaseType, output_type: CaseType) -> Stri
 }
 
 fn snake_case_parts(s: &str) -> Vec<String> {
-    s.split('_').map(|s| s.to_string()).collect()
+    let mut parts = Vec::new();
+    let mut part = String::new();
+    let chars: Vec<char> = s.chars().collect();
+    for (i, c) in chars.iter().enumerate() {
+        if *c == '_' && i > 0 && i + 1 < chars.len() {
+            if !(chars[i-1].is_alphanumeric() && chars[i+1].is_alphanumeric()) {
+                part.push(*c);
+            } else {
+                parts.push(part);
+                part = String::new();
+            }
+        } else {
+            part.push(*c);
+        }
+    }
+    parts.push(part);
+    parts
 }
 
 fn join_camel_case(parts: &Vec<String>) -> String {
@@ -214,9 +230,7 @@ mod tests {
     }
 
     #[test]
-    fn test_with_newlines() {
-        let input = "";
-        let expected = "";
-        test_camel_to_snake(input, expected);
+    fn test_underscore_not_in_words() {
+        test_snake_to_camel("Err(_) => do_something(),", "Err(_) => doSomething(),");
     }
 }
