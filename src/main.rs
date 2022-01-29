@@ -2,9 +2,26 @@ fn main() {
     println!("Hello, world!");
 }
 
-fn snake_to_camel(s: &str) -> String {
-    let parts = snake_case_parts(s);
-    join_camel_case(&parts)
+#[derive(Debug)]
+enum CaseType {
+    Camel,
+    Snake,
+    Kebab,
+}
+
+fn convert(input: &str, input_type: CaseType, output_type: CaseType) -> String {
+    let make_parts = match input_type {
+        CaseType::Camel => camel_case_parts,
+        CaseType::Snake => snake_case_parts,
+        CaseType::Kebab => kebab_case_parts,
+    };
+    let join_parts = match output_type {
+        CaseType::Camel => join_camel_case,
+        CaseType::Snake => join_snake_case,
+        CaseType::Kebab => join_kebab_case,
+    };
+    let parts = make_parts(input);
+    join_parts(&parts)
 }
 
 fn snake_case_parts(s: &str) -> Vec<String> {
@@ -28,11 +45,6 @@ fn capitalize(s: &str) -> String {
     out.push_str(&first.to_uppercase().to_string());
     out.push_str(rest);
     out
-}
-
-fn camel_to_snake(s: &str) -> String {
-    let parts = camel_case_parts(s);
-    join_snake_case(&parts)
 }
 
 fn join_snake_case(parts: &Vec<String>) -> String {
@@ -67,9 +79,12 @@ fn camel_case_parts(s: &str) -> Vec<String> {
     parts
 }
 
-fn kebab_to_camel(s: &str) -> String {
-    let parts = s.split("-").map(|p| p.to_string()).collect::<Vec<String>>();
-    join_camel_case(&parts)
+fn kebab_case_parts(s: &str) -> Vec<String> {
+    s.split("-").map(|p| p.to_string()).collect()
+}
+
+fn join_kebab_case(parts: &Vec<String>) -> String {
+    parts.join("-")
 }
 
 #[cfg(test)]
@@ -82,7 +97,7 @@ mod tests {
     }
 
     fn test_snake_to_camel(input: &str, expected: &str) {
-        let output = snake_to_camel(input);
+        let output = convert(input, CaseType::Snake, CaseType::Camel);
         assert_eq!(output, expected);
     }
 
@@ -107,7 +122,7 @@ mod tests {
     }
 
     fn test_camel_to_snake(input: &str, expected: &str) {
-        let output = camel_to_snake(input);
+        let output = convert(input, CaseType::Camel, CaseType::Snake);
         assert_eq!(output, expected);
     }
 
@@ -129,7 +144,21 @@ mod tests {
     #[test]
     fn test_kebab_to_camel() {
         let input = "this-is-the-test";
-        let output = kebab_to_camel(input);
+        let output = convert(input, CaseType::Kebab, CaseType::Camel);
         assert_eq!(output, "thisIsTheTest");
+    }
+
+    #[test]
+    fn test_kebab_to_snake() {
+        let input = "this-is-the-test";
+        let output = convert(input, CaseType::Kebab, CaseType::Snake);
+        assert_eq!(output, "this_is_the_test");
+    }
+
+    #[test]
+    fn test_camel_to_kebab() {
+        let input = "thisIsTheTest";
+        let output = convert(input, CaseType::Camel, CaseType::Kebab);
+        assert_eq!(output, "this-is-the-test");
     }
 }
