@@ -1,12 +1,33 @@
+use std::str::FromStr;
+
 fn main() {
     println!("Hello, world!");
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 enum CaseType {
     Camel,
     Snake,
     Kebab,
+}
+
+#[derive(Debug, PartialEq)]
+enum CaseTypeParseError {
+    BadCaseType,
+}
+
+impl FromStr for CaseType {
+    type Err = CaseTypeParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let normalized = s.to_lowercase();
+        match normalized.as_str() {
+            "camel" => Ok(CaseType::Camel),
+            "snake" => Ok(CaseType::Snake),
+            "kebab" => Ok(CaseType::Kebab),
+            _ => Err(CaseTypeParseError::BadCaseType),
+        }
+    }
 }
 
 fn convert(input: &str, input_type: CaseType, output_type: CaseType) -> String {
@@ -160,5 +181,34 @@ mod tests {
         let input = "thisIsTheTest";
         let output = convert(input, CaseType::Camel, CaseType::Kebab);
         assert_eq!(output, "this-is-the-test");
+    }
+
+    #[test]
+    fn test_parse_case_types() {
+        let inputs = vec!["camel", "snake", "kebab"];
+        let outputs = vec![CaseType::Camel, CaseType::Snake, CaseType::Kebab];
+        for (i, input) in inputs.iter().enumerate() {
+            let output = input.parse::<CaseType>().expect("Bad parse");
+            assert_eq!(output, outputs[i]);
+        }
+    }
+
+    #[test]
+    fn test_parse_case_types_case_insensitive() {
+        let inputs = vec!["camel", "SNAKE", "kEbaB"];
+        let outputs = vec![CaseType::Camel, CaseType::Snake, CaseType::Kebab];
+        for (i, input) in inputs.iter().enumerate() {
+            let output = input.parse::<CaseType>().expect("Bad parse");
+            assert_eq!(output, outputs[i]);
+        }
+    }
+
+    #[test]
+    fn test_bas_parse() {
+        let output = "bad".parse::<CaseType>();
+        match output {
+            Ok(_) => panic!("Parse should fail"),
+            Err(e) => assert_eq!(e, CaseTypeParseError::BadCaseType),
+        }
     }
 }
