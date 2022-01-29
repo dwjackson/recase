@@ -14,13 +14,20 @@ The valid case types are as follows:
 
 ## Usage
 
-To convert from snake-case to camel-case:
+To convert from snake-case to camel-case, reading from stdin:
 
 ```sh
 $ recase snake camel
 this_is_the_test
 thisIsTheTest
 ^D
+```
+
+To convert a single string:
+
+```sh
+$ recase snake camel 'this_is_the_test'
+thisIsTheTest
 ```
 
 ## License
