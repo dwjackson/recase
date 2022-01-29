@@ -1,10 +1,45 @@
 use std::str::FromStr;
+use std::env;
+use std::io;
 
 fn main() {
-    println!("Hello, world!");
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 3 {
+        println!("USAGE: recase [INPUT_TYPE] [OUTPUT_TYPE]");
+        println!("Input is read from stdin.");
+        println!("The types are:");
+        println!("\tcamel - camelCase");
+        println!("\tsnake - snake_case");
+        println!("\tkebeb - kebab-case");
+    } else {
+        let in_case_type = match args[1].parse::<CaseType>() {
+            Ok(case_type) => case_type,
+            Err(_) => panic!("Invalid input case type: {}", &args[1]),
+        };
+        let out_case_type = match args[2].parse::<CaseType>() {
+            Ok(case_type) => case_type,
+            Err(_) => panic!("Invalid output case type: {}", &args[1]),
+        };
+        let mut buffer = String::new();
+        let stdin = io::stdin();
+        loop {
+            match stdin.read_line(&mut buffer) {
+                Ok(n) => {
+                    if n == 0 {
+                        break;
+                    }
+                    let output = convert(&buffer, in_case_type, out_case_type);
+                    println!("{}", output.trim());
+                },
+                Err(_) => {
+                    break;
+                }
+            }
+        }
+    }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum CaseType {
     Camel,
     Snake,
@@ -210,5 +245,10 @@ mod tests {
             Ok(_) => panic!("Parse should fail"),
             Err(e) => assert_eq!(e, CaseTypeParseError::BadCaseType),
         }
+    }
+
+    #[test]
+    fn test_mixed_conversion() {
+        test_camel_to_snake("let thisIsTheTest = 2;", "let this_is_the_test = 2;");
     }
 }
