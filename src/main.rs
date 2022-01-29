@@ -3,7 +3,16 @@ fn main() {
 }
 
 fn snake_to_camel(s: &str) -> String {
-    s.split('_').enumerate().map(|(i, part)| {
+    let parts = snake_case_parts(s);
+    join_camel_case(&parts)
+}
+
+fn snake_case_parts(s: &str) -> Vec<String> {
+    s.split('_').map(|s| s.to_string()).collect()
+}
+
+fn join_camel_case(parts: &Vec<String>) -> String {
+    parts.iter().enumerate().map(|(i, part)| {
         if i > 0 {
             capitalize(part)
         } else {
@@ -22,19 +31,40 @@ fn capitalize(s: &str) -> String {
 }
 
 fn camel_to_snake(s: &str) -> String {
+    let parts = camel_case_parts(s);
+    join_snake_case(&parts)
+}
+
+fn join_snake_case(parts: &Vec<String>) -> String {
+    parts.join("_")
+}
+
+fn camel_case_parts(s: &str) -> Vec<String> {
     let mut prev_lowercase = false;
-    let mut out = String::new();
+    let mut parts = Vec::new();
+    let mut part = String::new();
     for c in s.chars() {
         if prev_lowercase && c.is_uppercase() {
             prev_lowercase = false;
-            out.push('_');
-            out.push_str(&c.to_lowercase().to_string());
+            if parts.is_empty() {
+                parts.push(part);
+            } else {
+                parts.push(part.to_lowercase());
+            }
+            part = String::new();
         } else {
             prev_lowercase = true;
-            out.push(c);
+        }
+        part.push(c);
+    }
+    if !part.is_empty() {
+        if parts.is_empty() {
+            parts.push(part);
+        } else {
+            parts.push(part.to_lowercase());
         }
     }
-    out
+    parts
 }
 
 #[cfg(test)]
