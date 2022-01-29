@@ -212,4 +212,11 @@ mod tests {
     fn test_mixed_conversion() {
         test_camel_to_snake("let thisIsTheTest = 2;", "let this_is_the_test = 2;");
     }
+
+    #[test]
+    fn test_with_newlines() {
+        let input = "";
+        let expected = "";
+        test_camel_to_snake(input, expected);
+    }
 }

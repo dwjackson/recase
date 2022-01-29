@@ -39,7 +39,8 @@ fn convert_from_stdin(in_case_type: CaseType, out_case_type: CaseType) {
                     break;
                 }
                 let output = convert(&buffer, in_case_type, out_case_type);
-                println!("{}", output.trim());
+                println!("{}", output.trim_end());
+                buffer = String::new();
             },
             Err(_) => {
                 break;
